@@ -1,0 +1,10 @@
+camera_id: TANGO_3DR_CAMERA_DEPTH
+camera_intrinsics:
+  calibration_type: TANGO_3DR_CALIBRATION_POLYNOMIAL_5_PARAMETERS
+  width: 224
+  height: 172
+  model: [219.595, 219.594, 110.87, 84.7246]
+  distortion: [0, 0, 0, 0, 0]
+camera_extrinsics:
+  orientation: [-0.707457499397275, 0.70669622159647, 0.000733418236729109, 0.00915418076720015]
+  translation: [-0.0297272659374125, 0.00927925616758863, 0.00526544916627806]
