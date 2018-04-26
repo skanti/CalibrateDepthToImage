@@ -9,16 +9,9 @@
 
 #include "opengl/OpenGLHelper.h"
 #include "opengl/CameraHelper.h"
-#include "opengl/vao/VoxelGrid.h"
+#include "opengl/vao/Points2Mesh.h"
 
-#include "Box3D.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_ONLY_PNM
-#include "stb_image.h"
 #include "Util.h"
-
-#include "pnmio.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 960
@@ -44,8 +37,7 @@ public:
 		init_mvp();
 		std::string shader_dir = std::string(HOME_DIR) + "/opengl/shader/";
 		create_point_cloud();
-		ct::geometry::Box3D::create(vertices, normals);
-		ct::vao::VoxelGrid::init_vao(vao, vertices, normals, positions, colors, shader_dir);
+		ct::vao::Points2Mesh::init_vao(vao, positions, elements, shader_dir);
 	}
 
 	void init_mvp() {
@@ -75,25 +67,25 @@ public:
 		std::cout << "intrinsic-matrix:\n" << intr << std::endl;
 
        	 
-		Eigen::MatrixXf positions0(3, depth.height*depth.width);
-		Eigen::MatrixXf colors0(3, depth.height*depth.width);
+		positions.resize(3, depth.height*depth.width);
 
-		int counter = 0;
 		for (int i = 0; i < depth.height; i++) {
 			for (int j = 0; j < depth.width; j++) {
 				float d = depth.data[i*depth.width + j];
-				if (d < 0.2 || d > 8.0)
-					continue;
 				Eigen::Vector4f p = Kinv*Eigen::Vector4f(j*d, i*d, d, 1.0f);		
 				const int index = i*depth.width + j;
-				positions0.col(index) = p.topRows(3);
-				colors0.col(index) = Eigen::Vector3f(0.2, 0.2, 0.2);
-				counter++;
+				positions.col(index) = p.topRows(3);
 			}
 		}
-		positions = positions0.leftCols(counter);
-		colors = colors0.leftCols(counter);
-		printf("n_voxels: %d\n", (int)positions.cols());
+		elements.resize(3, (depth.height - 1)*(depth.width - 1)*2);
+		auto findex = [&](int y, int x) {return y*(depth.width - 1) + x;};
+		for (int i = 0; i < depth.height-1; i++) {
+			for (int j = 0; j < depth.width-1; j++) {
+				int index = findex(i, j);
+				elements.col(index*2 + 0) = Eigen::Vector3i(findex(i, j), findex(i, j + 1 ), findex(i + 1, j)).cast<uint32_t>();
+				elements.col(index*2 + 1) = Eigen::Vector3i(findex(i, j + 1), findex(i + 1, j + 1 ), findex(i + 1, j)).cast<uint32_t>();
+			}
+		}
     }
 
 	void load_depth_map() {
@@ -136,7 +128,7 @@ public:
 	}
 
 	void draw() {
-		ct::vao::VoxelGrid::draw(vao, positions.cols(), 0.005, model_matrix, view_matrix, projection_matrix);
+		ct::vao::Points2Mesh::draw(vao, elements.cols(), 0.005, model_matrix, view_matrix, projection_matrix);
 	}
 
 	void advance(std::size_t iteration_counter, int64_t ms_per_frame) {
@@ -154,8 +146,9 @@ private:
 	Eigen::Matrix4f extr;
 	Eigen::Matrix4f intr;
 
-	Eigen::MatrixXf positions, colors, vertices, normals;
-	ct::vao::VoxelGrid::VAO vao;
+	Eigen::MatrixXf positions;
+	Eigen::Matrix<uint32_t, -1, -1> elements;
+	ct::vao::Points2Mesh::VAO vao;
 	Depth depth;
 };
 
