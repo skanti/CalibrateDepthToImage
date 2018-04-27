@@ -15,7 +15,10 @@ void main() {
 	vec3 p0 = gl_in[0].gl_Position.xyz;
     vec3 p1 = gl_in[1].gl_Position.xyz;
 	vec3 p2 = gl_in[2].gl_Position.xyz;
-	if (distance(p0, p1) > thresh || distance(p0, p2) > thresh || distance(p1, p2) > thresh)
+	if (p0.z == 0 || p1.z == 0 || p2.z == 0)
+		return;
+
+	if (distance(p0.z, p1.z) > thresh || distance(p0.z, p2.z) > thresh || distance(p1.z, p2.z) > thresh)
 		return;
     gl_Position = mvp_matrix*vec4(p0, 1.0);
 	EmitVertex();

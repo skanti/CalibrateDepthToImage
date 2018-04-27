@@ -3,8 +3,7 @@
 out vec4 frag_color;
 
 void main() {
-	float z_linear = gl_FragCoord.z;
-	//int z_linear_int = int(gl_FragCoord.z *float(1 << 24));
-    frag_color = vec4( z_linear, z_linear, z_linear, 1 );
+	float z_nonlinear = gl_FragCoord.z;
+    frag_color = vec4( z_nonlinear, z_nonlinear, z_nonlinear, 1 );
 }
 

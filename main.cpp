@@ -49,7 +49,7 @@ public:
 		Eigen::Vector3f up(0, -1, 0);
 		Eigen::Vector3f lookat(0, 0, 1);
 		view_matrix = oglh::make_view_matrix<Eigen::Vector3f>(eye, lookat, up);
-		projection_matrix = oglh::make_perspective_matrix<float>(60.0f, ar, 0.1f, 10.0f);
+		projection_matrix = oglh::make_perspective_matrix<float>(60.0f, ar, 0.1f, 20.0f);
 		//projection_matrix = vision2graphics(intr, depth.width, depth.height, 0.1, 50.0);
 		std::cout << "intrinsic-matrix:\n" << intr << std::endl;
 		std::cout << "projection_matrix:\n" << projection_matrix << std::endl;
