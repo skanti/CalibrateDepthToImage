@@ -50,6 +50,7 @@ namespace ct {
 				// <-
 
 				glEnable(GL_DEPTH_TEST);
+				glDisable(GL_CULL_FACE);
 			}
 
 			static void draw(VAO& vao, int n_size, float scale, Eigen::Matrix4f &model_matrix, Eigen::Matrix4f &view_matrix, Eigen::Matrix4f &projection_matrix) {
@@ -64,9 +65,9 @@ namespace ct {
 				glUniformMatrix4fv(vao.loc_view_matrix, 1, GL_FALSE, view_matrix.data());
 				glUniformMatrix4fv(vao.loc_projection_matrix, 1, GL_FALSE, projection_matrix.data());
 
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao.ebo);
-				glDrawElements(GL_TRIANGLES, 3*n_size, GL_UNSIGNED_INT, 0);
-				//glDrawArrays(GL_POINTS, 0, n_size);
+				//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao.ebo);
+				//glDrawElements(GL_TRIANGLES, 3*n_size, GL_UNSIGNED_INT, 0);
+				glDrawArrays(GL_POINTS, 0, n_size);
 
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

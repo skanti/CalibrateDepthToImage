@@ -11,10 +11,12 @@
 #include "opengl/CameraHelper.h"
 #include "opengl/vao/Points2Mesh.h"
 
+#include "opencv2/imgproc/imgproc.hpp"
+
 #include "Util.h"
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 960
+#define WINDOW_WIDTH (224*4)
+#define WINDOW_HEIGHT (172*4)
 
 struct Depth {
 	int width;
@@ -43,11 +45,14 @@ public:
 	void init_mvp() {
 		model_matrix.setIdentity();
 		float ar = (float)(WINDOW_WIDTH)/WINDOW_HEIGHT;
-		Eigen::Vector3f eye(0, 0, -1);
-		Eigen::Vector3f up(0, 1, 0);
-		Eigen::Vector3f lookat(0, 0, 0);
+		Eigen::Vector3f eye(0, 0, 0);
+		Eigen::Vector3f up(0, -1, 0);
+		Eigen::Vector3f lookat(0, 0, 1);
 		view_matrix = oglh::make_view_matrix<Eigen::Vector3f>(eye, lookat, up);
-		projection_matrix = oglh::make_perspective_matrix<float>(60.0f, ar, 0.3f, 50.0f);
+		projection_matrix = oglh::make_perspective_matrix<float>(60.0f, ar, 0.1f, 10.0f);
+		//projection_matrix = vision2graphics(intr, depth.width, depth.height, 0.1, 50.0);
+		std::cout << "intrinsic-matrix:\n" << intr << std::endl;
+		std::cout << "projection_matrix:\n" << projection_matrix << std::endl;
 	}
 
 	Eigen::Matrix<float, 4, 4> vision2graphics(Eigen::Matrix4f K, int width, int height, float znear, float zfar) {
@@ -64,7 +69,6 @@ public:
     void create_point_cloud() {
 		//projection_matrix = vision2graphics(intr, depth.width, depth.height, 0.1f, 100.0f);
 		Eigen::Matrix4f Kinv = intr.inverse();
-		std::cout << "intrinsic-matrix:\n" << intr << std::endl;
 
        	 
 		positions.resize(3, depth.height*depth.width);
@@ -125,6 +129,9 @@ public:
 		depth.height = height;
 		depth.data.resize(width*height);
 		std::transform(data.begin(), data.end(), depth.data.data(), [](uint16_t a) -> float {return a/1000.0;});
+		cv::Mat tmp(height, width, CV_32FC1, depth.data.data());
+		cv::medianBlur(tmp, tmp, 3);
+		printf("depthmap: width: %d height: %d\n", width, height);
 	}
 
 	void draw() {
@@ -132,10 +139,10 @@ public:
 	}
 
 	void advance(std::size_t iteration_counter, int64_t ms_per_frame) {
-		Eigen::Map<Eigen::Vector3f> eye(Camera::cam_position);
-		Eigen::Map<Eigen::Vector3f> up(Camera::cam_up);
-		Eigen::Map<Eigen::Vector3f> lookat(Camera::cam_lookat);
-		view_matrix = oglh::make_view_matrix<Eigen::Vector3f>(eye, lookat, up);	
+		//Eigen::Map<Eigen::Vector3f> eye(Camera::cam_position);
+		//Eigen::Map<Eigen::Vector3f> up(Camera::cam_up);
+		//Eigen::Map<Eigen::Vector3f> lookat(Camera::cam_lookat);
+		//view_matrix = oglh::make_view_matrix<Eigen::Vector3f>(eye, lookat, up);	
     }
 
 private:

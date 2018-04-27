@@ -19,7 +19,6 @@ void main() {
 		return;
     gl_Position = mvp_matrix*vec4(p0, 1.0);
 	EmitVertex();
-	//return;
     gl_Position = mvp_matrix*vec4(p1, 1.0);
 	EmitVertex();
     gl_Position = mvp_matrix*vec4(p2, 1.0);
