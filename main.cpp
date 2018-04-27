@@ -78,10 +78,10 @@ public:
 			}
 		}
 		elements.resize(3, (depth.height - 1)*(depth.width - 1)*2);
-		auto findex = [&](int y, int x) {return y*(depth.width - 1) + x;};
+		auto findex = [&](int y, int x) {return y*depth.width + x;};
 		for (int i = 0; i < depth.height-1; i++) {
 			for (int j = 0; j < depth.width-1; j++) {
-				int index = findex(i, j);
+				int index = i*(depth.width - 1) + j;
 				elements.col(index*2 + 0) = Eigen::Vector3i(findex(i, j), findex(i, j + 1 ), findex(i + 1, j)).cast<uint32_t>();
 				elements.col(index*2 + 1) = Eigen::Vector3i(findex(i, j + 1), findex(i + 1, j + 1 ), findex(i + 1, j)).cast<uint32_t>();
 			}
